@@ -6,6 +6,6 @@ export class UserService {
   constructor(private readonly _prisma: PrismaService) {}
 
   async getAllClients() {
-    return this._prisma.$queryRaw`SELECT * FROM client`;
+    return this._prisma.$queryRaw`SELECT * FROM "Client"`;
   }
 }
