@@ -14,7 +14,149 @@ datasource db {
 }
 
 model User {
-  id    Int     @default(autoincrement()) @id
-  email String  @unique
-  name  String?
+  id            Int       @default(autoincrement()) @id
+  username      String    @unique
+  password      String  
+  lastLoginAt   DateTime
+  blocked       Boolean   @default(false)
+  role          UserRole  @default(CLIENT)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+enum UserRole {
+  CLIENT
+  ADMIN
+  OPERATOR
+  SUPERADMIN
+}
+
+model Client {
+  id              Int       @default(autoincrement()) @id
+  firstName       String
+  lastName        String
+  email           String    @unique
+  dob             DateTime
+  gender          Gender
+  avatar          String?
+  phone           String
+  address         String
+  height          Float
+  weight          Float
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relationships
+  bloodSugars     BloodSugar[]
+  bloodPressures  BloodPressure[]
+  meals           Meal[]
+  steps           Step[]
+  prescriptions   Prescription[]
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+model BloodSugar {
+  id              Int       @default(autoincrement()) @id
+  date            DateTime
+  systolic        Float
+  diastoic        Float
+  pulse           Float
+  description     String?   @db.Text
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relationships
+  clientId        Int
+  client          Client    @relation(fields: [clientId], references: [id])
+}
+
+model BloodPressure {
+  id              Int       @default(autoincrement()) @id
+  date            DateTime
+  value           Float
+  recordMoment    RecordMoment
+  description     String?   @db.Text
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relationships
+  clientId        Int
+  client          Client    @relation(fields: [clientId], references: [id])
+}
+
+enum RecordMoment {
+  BEFORE_MEAL
+  AFTER_MEAL
+  NON_MEAL
+}
+
+model Meal {
+  id            Int       @default(autoincrement()) @id
+  date          DateTime
+  foodName      String
+  foodImage     String?
+  type          MealType
+  description  String?   @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relationships
+  clientId      Int
+  client        Client    @relation(fields: [clientId], references: [id])
+}
+
+enum MealType {
+  MORNING
+  AFTERNOON
+  EVENING
+  SNACK
+}
+
+model Step {
+  id            Int       @default(autoincrement()) @id
+  steps         Int
+  distance      Float
+  duration      Int
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relationships
+  clientId      Int
+  client        Client    @relation(fields: [clientId], references: [id])
+}
+
+model Medication {
+  id            Int       @default(autoincrement()) @id
+  name          String
+  dosage        String
+  frequency     String
+  sideEffects   String
+  description   String    @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relationships
+  prescriptions Prescription[]
+}
+
+model Prescription {
+  id            Int       @default(autoincrement()) @id
+  startDate     DateTime
+  endDate       DateTime
+  dosage        String
+  frequency     String
+  description   String    @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relationships
+  clientId      Int
+  client        Client    @relation(fields: [clientId], references: [id])
+  medicationId  Int
+  medication    Medication @relation(fields: [medicationId], references: [id])
 }
