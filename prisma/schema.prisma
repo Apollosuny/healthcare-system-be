@@ -22,6 +22,10 @@ model User {
   role          UserRole  @default(CLIENT)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+
+  // Relationships
+  client        Client?
+  operator      Operator?
 }
 
 enum UserRole {
@@ -52,12 +56,40 @@ model Client {
   meals           Meal[]
   steps           Step[]
   prescriptions   Prescription[]
+  userId          Int       @unique  
+  user            User      @relation(fields: [userId], references: [id])
+  clientHealthInformation ClientHealthInformation[]
 }
 
 enum Gender {
   MALE
   FEMALE
   OTHER
+}
+
+model Operator {
+  id            Int       @default(autoincrement()) @id
+  firstName     String
+  lastName      String
+  email         String    @unique
+  phone         String
+  gender        Gender
+  role          OperatorRole
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relationships
+  user          User      @relation(fields: [userId], references: [id])
+  userId        Int       @unique
+  healthInformations HealthInformation[]
+}
+
+enum OperatorRole {
+  NURSE
+  DOCTOR
+  PHARMACIST
+  LAB_TECHNICIAN
+  ADMIN
 }
 
 model BloodSugar {
@@ -159,4 +191,34 @@ model Prescription {
   client        Client    @relation(fields: [clientId], references: [id])
   medicationId  Int
   medication    Medication @relation(fields: [medicationId], references: [id])
+}
+
+model HealthInformation {
+  id            Int      @default(autoincrement()) @id 
+  title         String
+  description   String   @db.Text
+  metadata      Json?
+  totalLiked    Int      @default(0)
+  totalVisited  Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relationships
+  authorId      Int
+  author        Operator @relation(fields: [authorId], references: [id])
+  clientHealthInformations ClientHealthInformation[]
+}
+
+model ClientHealthInformation {
+  id            Int       @default(autoincrement()) @id
+  visitedAt     DateTime
+  likeAt        DateTime
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relationships
+  clientId      Int
+  client        Client    @relation(fields: [clientId], references: [id])
+  healthInformationId Int
+  healthInformation   HealthInformation @relation(fields: [healthInformationId], references: [id])
 }
