@@ -6,9 +6,10 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ClientModule } from './client/client.module';
 import { BloodPressureModule } from './blood-pressure/blood-pressure.module';
+import { BloodSugarModule } from './blood-sugar/blood-sugar.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, UserModule, ClientModule, BloodPressureModule],
+  imports: [PrismaModule, AuthModule, UserModule, ClientModule, BloodPressureModule, BloodSugarModule],
   controllers: [AppController],
   providers: [AppService],
 })
