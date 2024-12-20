@@ -17,7 +17,7 @@ model User {
   id            Int       @default(autoincrement()) @id
   username      String    @unique
   password      String  
-  lastLoginAt   DateTime
+  lastLoginAt   DateTime?
   blocked       Boolean   @default(false)
   role          UserRole  @default(CLIENT)
   createdAt     DateTime  @default(now())
