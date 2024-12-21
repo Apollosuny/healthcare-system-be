@@ -29,6 +29,34 @@ export class ClientService {
     return client;
   }
 
+  async getClientData(searchKey?: string) {
+    const clients = await this._prisma.client.findMany({
+      where: {
+        OR: [
+          {
+            firstName: {
+              contains: searchKey,
+              mode: 'insensitive',
+            },
+          },
+          {
+            lastName: {
+              contains: searchKey,
+              mode: 'insensitive',
+            },
+          },
+          {
+            email: {
+              contains: searchKey,
+              mode: 'insensitive',
+            },
+          },
+        ],
+      },
+    });
+    return clients;
+  }
+
   async getBMIData() {
     const result = await this._prisma.$queryRaw`
       SELECT 
@@ -45,6 +73,49 @@ export class ClientService {
       WHERE c.height > 0 AND c.weight > 0
       ORDER BY bmi_category, full_name;
     `;
+    return result;
+  }
+
+  async getAverageBloodSugar() {
+    const clients = await this._prisma.client.findMany({
+      include: {
+        bloodSugars: true,
+      },
+    });
+
+    const result = clients.map((client) => {
+      const fullName = `${client.firstName} ${client.lastName}`;
+      const avgSystolic =
+        client.bloodSugars.length > 0
+          ? (
+              client.bloodSugars.reduce((sum, bp) => sum + bp.systolic, 0) /
+              client.bloodSugars.length
+            ).toFixed(2)
+          : null;
+      const avgDiastolic =
+        client.bloodSugars.length > 0
+          ? (
+              client.bloodSugars.reduce((sum, bp) => sum + bp.diastoic, 0) /
+              client.bloodSugars.length
+            ).toFixed(2)
+          : null;
+      const avgPulse =
+        client.bloodSugars.length > 0
+          ? (
+              client.bloodSugars.reduce((sum, bs) => sum + bs.pulse, 0) /
+              client.bloodSugars.length
+            ).toFixed(2)
+          : null;
+
+      return {
+        client_id: client.id,
+        full_name: fullName,
+        avg_systolic: avgSystolic,
+        avg_diastolic: avgDiastolic,
+        avg_pulse: avgPulse,
+      };
+    });
+
     return result;
   }
 }

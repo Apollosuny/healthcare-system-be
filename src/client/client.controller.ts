@@ -1,4 +1,12 @@
-import { Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ClientService } from './client.service';
 import { Prisma } from '@prisma/client';
 
@@ -12,9 +20,21 @@ export class ClientController {
     return this._clientService.init();
   }
 
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  getClientData(@Query('search') search: string) {
+    return this._clientService.getClientData(search);
+  }
+
   @Get('/bmi')
   @HttpCode(HttpStatus.OK)
   getBMIData() {
     return this._clientService.getBMIData();
+  }
+
+  @Get('/average-blood-sugar')
+  @HttpCode(HttpStatus.OK)
+  getAverageBloodSugar() {
+    return this._clientService.getAverageBloodSugar();
   }
 }
